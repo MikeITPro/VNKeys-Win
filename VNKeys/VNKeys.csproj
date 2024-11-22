@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\KieuGo.cs" />
     <Compile Include="model\TestClass.cs" />
     <Compile Include="MyGlobal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

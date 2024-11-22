@@ -29,6 +29,8 @@ namespace VNKeys
                 _formMain = new FormMain(); 
             }
             return _formMain;
-        }        
+        }      
+        
+        
     }
 }
