@@ -12,6 +12,8 @@ using System.Windows.Forms;
 using VNKeys.model;
 using VNKeys.service;
 using static System.Net.Mime.MediaTypeNames;
+using System.IO;
+using System.Windows.Forms.VisualStyles;
 
 namespace VNKeys.ui
 {
@@ -119,6 +121,28 @@ namespace VNKeys.ui
             _lastCharString = keyCode;
         }
 
+        private void loadSettings()
+        {
+            var settingFile = MyGlobal.getAppSettingFilePath();
+            if (File.Exists(settingFile))
+            {
+                try
+                {
+                    var setting = CMShareable.Methods.deserializeObject<AppSetting>(File.ReadAllText(settingFile), null);
+                    if (setting != null)
+                    {
+                        chkConfirmExit.Checked = setting.confirmOnExit;
+                        chkToSystemTray.Checked = setting.minToTray;
+                        setTypingMode(setting.typingMode);
+                    }
+                }
+                catch (Exception ignored)
+                {
+
+                }
+            }
+        }
+
         private void FormMain_Load(object sender, EventArgs e)
         {
             _keyHook = new KeyboardHookListener(new GlobalHooker());
@@ -147,9 +171,56 @@ namespace VNKeys.ui
             kieuGo.mapString = "s=' f=` j=. r=? x=~ w=* 9=( 6=^ d=-";
             list.Add(kieuGo);
 
-            ddlCurrentKieuGo.DataSource = list;
-            ddlCurrentKieuGo.DisplayMember = "name";
+            ddlTypingMode.DataSource = list;
+            ddlTypingMode.DisplayMember = "name";
+            
+            notifyIcon.Icon = this.Icon;
 
+            this.loadSettings();
+        }
+
+        private void saveSettings()
+        {
+            var setting = new AppSetting();
+            setting.typingMode = ddlTypingMode.Text.Trim();
+            setting.confirmOnExit = chkConfirmExit.Checked;
+            setting.minToTray = chkToSystemTray.Checked;
+            var settingFile = MyGlobal.getAppSettingFilePath();
+            CMShareable.Methods.serializeObjectToFile(setting, settingFile);
+        }
+
+        private void setTypingMode(string text)
+        {
+            setSelectedItem<KieuGo>(ddlTypingMode, text, "name");
+        }
+
+        public static void setSelectedItem<T>(ComboBox comboBox, string searchValue, string propertyName)
+        {
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                return;
+               // throw new ArgumentNullException(nameof(propertyName), "Property name cannot be null or empty.");
+            }
+
+            for (int i = 0; i < comboBox.Items.Count; i++)
+            {
+                var item = comboBox.Items[i];
+
+                // Use reflection to get the value of the specified property
+                var property = item.GetType().GetProperty(propertyName);
+                if (property != null)
+                {
+                    var value = property.GetValue(item)?.ToString(); // Convert the property value to a string
+                    if (value != null && value.Equals(searchValue, StringComparison.OrdinalIgnoreCase))
+                    {
+                        comboBox.SelectedIndex = i;
+                        return;
+                    }
+                }
+            }
+
+            // Handle no match found (optional)
+            // MessageBox.Show($"Item with {propertyName} = \"{searchValue}\" not found.");
         }
 
         private void lblLink_Click(object sender, EventArgs e)
@@ -273,28 +344,18 @@ namespace VNKeys.ui
         private void updateVNKeysOnOff()
         {
             if (chkOn.Checked)
-            {
-                // this.btnTurnOff.Visible = true;
-                //  this.btnTurnOn.Visible = false;
-                // this.notifyIcon.Icon = this.Icon;
+            {        
                 _keyHook.Enabled = true;
             }
             else
             {
-                _keyHook.Enabled = false;
-                //this.btnTurnOff.Visible = false;
-                //this.btnTurnOn.Visible = true;
-                //this.notifyIcon.Icon = Properties.Resources.logo_e;
-                //if (chkAutoMinimizeOnOff.Checked)
-                //{
-                //    this.WindowState = FormWindowState.Minimized;
-                //}
+                _keyHook.Enabled = false;               
             }
         }
 
         private void ddlCurrentKieuGo_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var kieuGo = ddlCurrentKieuGo.SelectedItem as KieuGo;
+            var kieuGo = ddlTypingMode.SelectedItem as KieuGo;
             if (kieuGo != null)
             {
                 _mapString = kieuGo.mapString;               
@@ -303,8 +364,7 @@ namespace VNKeys.ui
 
         private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            var form = new FormAbout();
-            form.ShowDialog();
+           
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -326,6 +386,75 @@ namespace VNKeys.ui
         private void menuReqFeature_Click(object sender, EventArgs e)
         {
             MyGlobal.gotoUrl("https://vnfox.com/about-contact.htm?t=feature&n=" + MyGlobal.getAppName());
+        }
+
+        private void FormMain_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                if (chkToSystemTray.Checked)
+                {
+                    this.Hide();
+                    notifyIcon.Visible = true;
+                }
+            }
+        }
+
+        private void notifyIcon_Click(object sender, EventArgs e)
+        {
+            // Restore the form's state
+            this.Show(); // Make the form visible
+            this.WindowState = FormWindowState.Normal; // Restore window state to normal
+            notifyIcon.Visible = false; // Hide the notification icon
+
+            // Bring the form to the front
+            WinService.BringExistingInstanceToFront(this.Text);
+        }
+
+        private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
+        {            
+            
+        }
+
+        private void supportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+          
+        }
+
+        private void questionsAnswersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MyGlobal.gotoUrl("https://vnfox.com/vnkeys-support.htm");
+        }
+
+        private void showAbout()
+        {
+            var form = new FormAbout();
+            form.ShowDialog();
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showAbout();
+        }
+
+        private void chekForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MyGlobal.gotoUrl("https://vnfox.com/vnkeys-intro.htm");
+
+            //var newVersion = MyGlobal.checkForLatestVersion();
+            //if (!string.IsNullOrEmpty(newVersion))
+            //{
+            //    MyGlobal.showInfo("Hiện có phiên bản " + newVersion + ". Nhớ vào website để download nhé.");
+            //}
+            //else
+            //{
+            //    MyGlobal.showInfo("Phiên bản này là phiên bản mới nhất.");
+            //}
+        }
+
+        private void FormMain_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            this.saveSettings();
         }
     }
 }

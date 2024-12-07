@@ -18,5 +18,5 @@ namespace VNKeys
         TRANG, // ( ă
         NGANG,  // - đ
         NONE,
-    }
+    }    
 }

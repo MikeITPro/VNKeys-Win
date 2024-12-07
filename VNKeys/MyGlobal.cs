@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using VNKeys.service;
@@ -13,16 +15,46 @@ using VNKeys.ui;
 namespace VNKeys
 {
     internal static class MyGlobal
-    {        
+    {
         private static KeyboardService _keyboardService;
-        private static FormMain _formMain;
+        private static FormMain _formMain;        
+
+        private static Mutex mutex;
+
 
         [STAThread]
         static void Main()
-        {
+        {          
+            bool isNewInstance;
+            // Create a Mutex to check for a single instance
+            mutex = new Mutex(true, getAppName(), out isNewInstance);
+
+            if (!isNewInstance)
+            {
+                showInfo(MyGlobal.getAppName() + " đang chạy, nhớ kiểm tra ở taskbar hay system tray.");
+                WinService.BringExistingInstanceToFront(getAppName());
+                return;
+            }
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(getFormMain());
+        }
+
+
+        public static void showInfo(string message)
+        {
+            showMessage(message, "Info");
+        }
+
+        public static void showMessage(string message, string caption)
+        {
+            MessageBox.Show(message, caption);
+        }
+
+
+        public static string checkForLatestVersion()
+        {
+            return "";
         }
 
         public static FormMain getFormMain()
@@ -92,6 +124,23 @@ namespace VNKeys
         {
 
             return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+        }        
+        
+
+        public static string getAppDataPath()
+        {
+            var dPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), getAppName());
+            if (!Directory.Exists(dPath))
+            {
+                Directory.CreateDirectory(dPath);
+            }
+            return dPath;
         }
+
+        public static string getAppSettingFilePath()
+        {
+            return getAppDataPath() + "\\setting.bin";
+        }
+       
     }
 }
