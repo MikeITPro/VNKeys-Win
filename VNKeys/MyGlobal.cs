@@ -139,7 +139,7 @@ namespace VNKeys
 
         public static string getAppSettingFilePath()
         {
-            return getAppDataPath() + "\\setting.bin";
+            return getAppDataPath() + "\\setting.xml";
         }
        
     }

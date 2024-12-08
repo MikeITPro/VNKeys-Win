@@ -14,6 +14,7 @@ using VNKeys.service;
 using static System.Net.Mime.MediaTypeNames;
 using System.IO;
 using System.Windows.Forms.VisualStyles;
+using System.Xml.Serialization;
 
 namespace VNKeys.ui
 {
@@ -128,7 +129,7 @@ namespace VNKeys.ui
             {
                 try
                 {
-                    var setting = CMShareable.Methods.deserializeObject<AppSetting>(File.ReadAllText(settingFile), null);
+                    var setting = deserializeFromXml<AppSetting>(settingFile, null);
                     if (setting != null)
                     {
                         chkConfirmExit.Checked = setting.confirmOnExit;
@@ -186,12 +187,40 @@ namespace VNKeys.ui
             setting.confirmOnExit = chkConfirmExit.Checked;
             setting.minToTray = chkToSystemTray.Checked;
             var settingFile = MyGlobal.getAppSettingFilePath();
-            CMShareable.Methods.serializeObjectToFile(setting, settingFile);
+           // CMShareable.Methods.serializeObjectToFile(setting, settingFile);
+           serializeToXml<AppSetting>(settingFile, setting);
         }
 
         private void setTypingMode(string text)
         {
             setSelectedItem<KieuGo>(ddlTypingMode, text, "name");
+        }
+
+        public void serializeToXml<T>(string filePath, T objectToSerialize)
+        {
+            if (objectToSerialize == null) throw new ArgumentNullException(nameof(objectToSerialize));
+            XmlSerializer serializer = new XmlSerializer(typeof(T));
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                serializer.Serialize(writer, objectToSerialize);
+            }
+        }
+
+        public T deserializeFromXml<T>(string filePath, T defaultValue)
+        {
+            if (!File.Exists(filePath)) throw new FileNotFoundException("The specified file was not found.", filePath);
+            try
+            {
+                XmlSerializer serializer = new XmlSerializer(typeof(T));
+                using (StreamReader reader = new StreamReader(filePath))
+                {
+                    return (T)serializer.Deserialize(reader);
+                }
+            }
+            catch (Exception ignored)
+            {
+                return defaultValue;
+            }
         }
 
         public static void setSelectedItem<T>(ComboBox comboBox, string searchValue, string propertyName)
