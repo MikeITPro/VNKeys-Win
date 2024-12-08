@@ -55,6 +55,7 @@
             this.chkToSystemTray = new System.Windows.Forms.CheckBox();
             this.chkConfirmExit = new System.Windows.Forms.CheckBox();
             this.notifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.textBox1 = new System.Windows.Forms.TextBox();
             this.statusStrip.SuspendLayout();
             this.menuStrip.SuspendLayout();
             this.tabControl1.SuspendLayout();
@@ -194,6 +195,7 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.textBox1);
             this.tabPage1.Controls.Add(this.ddlTypingMode);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.chkOff);
@@ -207,12 +209,12 @@
             this.tabPage1.Text = "Main";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // ddlCurrentKieuGo
+            // ddlTypingMode
             // 
             this.ddlTypingMode.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.ddlTypingMode.FormattingEnabled = true;
             this.ddlTypingMode.Location = new System.Drawing.Point(131, 41);
-            this.ddlTypingMode.Name = "ddlCurrentKieuGo";
+            this.ddlTypingMode.Name = "ddlTypingMode";
             this.ddlTypingMode.Size = new System.Drawing.Size(168, 25);
             this.ddlTypingMode.TabIndex = 11;
             this.ddlTypingMode.SelectedIndexChanged += new System.EventHandler(this.ddlCurrentKieuGo_SelectedIndexChanged);
@@ -296,6 +298,13 @@
             this.notifyIcon.Text = "notifyIcon1";
             this.notifyIcon.Click += new System.EventHandler(this.notifyIcon_Click);
             // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(12, 99);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(287, 25);
+            this.textBox1.TabIndex = 12;
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -354,5 +363,6 @@
         private System.Windows.Forms.ToolStripMenuItem questionsAnswersToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem chekForUpdatesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.TextBox textBox1;
     }
 }

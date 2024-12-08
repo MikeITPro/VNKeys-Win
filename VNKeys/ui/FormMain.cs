@@ -1,6 +1,4 @@
-﻿using MouseKeyboardActivityMonitor.WinApi;
-using MouseKeyboardActivityMonitor;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -20,7 +18,7 @@ namespace VNKeys.ui
 {
     public partial class FormMain : Form
     {
-        private KeyboardHookListener _keyHook;
+        private GlobalKeyboardListener _keyboardListener;
         private string _lastCharString = string.Empty;
         private string _mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=- 1=' 2=` 5=. 3=? 4=~ 7=* 8=( 6=^ s=' f=` j=. r=? x=~ w=* w=(";
         private bool _isReplacing = false;
@@ -41,7 +39,7 @@ namespace VNKeys.ui
             _lastCharString = "";
         }
 
-    
+
         private void keyboardKeyDown(object sender, KeyEventArgs e)
         {
             // MessageBox.Show($"Key pressed: {e.KeyCode}");
@@ -57,8 +55,8 @@ namespace VNKeys.ui
                     }
                     else if ((key != Keys.LShiftKey) && (key != Keys.RShiftKey))
                     {
-                        string charString = MyGlobal.getKeyboardService().getCharFromKeyValue(e.KeyValue).ToString(); 
-                        
+                        string charString = MyGlobal.getKeyboardService().getCharFromKeyValue(e.KeyValue).ToString();
+
                         //if (chkDauDoi.Checked)
                         //{
                         //    string ch = _lastWord.ToString().ToLower();
@@ -79,7 +77,7 @@ namespace VNKeys.ui
 
                         if ((accentType != AccentType.NONE) && !string.IsNullOrEmpty(_lastCharString))
                         {
-                            string data = this.getVietCharacterByDau(accentType); 
+                            string data = this.getVietCharacterByDau(accentType);
                             if (!string.IsNullOrEmpty(data))
                             {
                                 _isReplacing = true;
@@ -144,10 +142,98 @@ namespace VNKeys.ui
             }
         }
 
+        //private void OnKeyPressed(object sender, GlobalKeyboardHookEventArgs e)
+        //{
+        //    // EDT: No need to filter for VkSnapshot anymore. This now gets handled
+        //    // through the constructor of GlobalKeyboardHook(...).
+        //    if (e.KeyboardState == GlobalKeyboardHook.KeyboardState.KeyDown)
+        //    {
+        //        // Now you can access both, the key and virtual code
+        //        Keys loggedKey = e.KeyboardData.Key;
+        //        int loggedVkCode = e.KeyboardData.VirtualCode;
+
+        //        textBox1.Text += "k:" + loggedKey + " c: " + loggedVkCode;
+        //    }
+        //}
+
+        private void onKeyPressed(object sender, KeyPressedEventArgs e)
+        {
+            // Example: Block the "a" key (lowercase) and show a message
+            //if (character == "a")
+            //{
+            //    //MessageBox.Show($"Blocked Key: {character}, Virtual Key Code: {virtualKeyCode}");
+            //    return true; // Cancel the event
+            //}
+
+            // Allow all other keys
+            //MessageBox.Show($"Key Pressed: {character}, Virtual Key Code: {virtualKeyCode}");
+            //textBox1.Text = $"Key Pressed: {character}, Virtual Key Code: {virtualKeyCode}";
+
+            // MessageBox.Show($"Key pressed: {e.KeyCode}");
+            if (_isReplacing) { return; }
+            try
+            {
+                Keys key = (Keys)e.Key;
+                if (chkOn.Checked)
+                {
+                    if ((key == Keys.Space) || key == Keys.Enter) // new word
+                    {
+                        this.resetLastWord();
+                    }
+                    else if ((key != Keys.LShiftKey) && (key != Keys.RShiftKey))
+                    {
+                        //string charString = MyGlobal.getKeyboardService().getCharFromKeyValue(e.KeyValue).ToString();
+
+                        string charString = e.Character;
+                        var accentType = getAccentType(charString);
+
+                        if ((accentType != AccentType.NONE) && !string.IsNullOrEmpty(_lastCharString))
+                        {
+                            string data = this.getVietCharacterByDau(accentType);
+                            if (!string.IsNullOrEmpty(data))
+                            {
+                                _isReplacing = true;
+                                MyGlobal.getKeyboardService().sendKey(Keys.Back);
+                                MyGlobal.getKeyboardService().sendStringToCurrentCursor(data);
+                                // textBox1.Text += data;
+                                saveLastWord(data);                                
+                                _isReplacing = false;
+                                e.Handled = true;
+                            }
+                        }
+                        else if (this.isVietCharacter(charString))
+                        {
+                            saveLastWord(charString);
+                        }
+                        else
+                        {
+                            resetLastWord();
+                            // MessageBox.Show(_lastCharString + " " + charString);
+                        }
+                    }
+                }
+            }
+            catch (Exception ignored)
+            {
+                // You can log for debug
+                // MessageBox.Show(ignored.ToString());
+            }
+        }
+
         private void FormMain_Load(object sender, EventArgs e)
         {
-            _keyHook = new KeyboardHookListener(new GlobalHooker());
-            _keyHook.KeyDown += keyboardKeyDown;
+
+            //_keyHook = new KeyboardHookListener();
+            //_keyHook.KeyDown += keyboardKeyDown;
+
+            // Hooks into all keys.
+            //_globalKeyboardHook = new GlobalKeyboardHook();
+            // _globalKeyboardHook.KeyboardPressed += OnKeyPressed;
+
+            _keyboardListener = new GlobalKeyboardListener();
+            _keyboardListener.KeyPressed += onKeyPressed;
+            //_keyboardListener.Start();
+
             chkOn.Checked = true;
 
             this.Text = MyGlobal.getAppName() + " " + MyGlobal.getAppVersion();
@@ -174,7 +260,7 @@ namespace VNKeys.ui
 
             ddlTypingMode.DataSource = list;
             ddlTypingMode.DisplayMember = "name";
-            
+
             notifyIcon.Icon = this.Icon;
 
             this.loadSettings();
@@ -187,8 +273,8 @@ namespace VNKeys.ui
             setting.confirmOnExit = chkConfirmExit.Checked;
             setting.minToTray = chkToSystemTray.Checked;
             var settingFile = MyGlobal.getAppSettingFilePath();
-           // CMShareable.Methods.serializeObjectToFile(setting, settingFile);
-           serializeToXml<AppSetting>(settingFile, setting);
+            // CMShareable.Methods.serializeObjectToFile(setting, settingFile);
+            serializeToXml<AppSetting>(settingFile, setting);
         }
 
         private void setTypingMode(string text)
@@ -228,7 +314,7 @@ namespace VNKeys.ui
             if (string.IsNullOrEmpty(propertyName))
             {
                 return;
-               // throw new ArgumentNullException(nameof(propertyName), "Property name cannot be null or empty.");
+                // throw new ArgumentNullException(nameof(propertyName), "Property name cannot be null or empty.");
             }
 
             for (int i = 0; i < comboBox.Items.Count; i++)
@@ -373,12 +459,19 @@ namespace VNKeys.ui
         private void updateVNKeysOnOff()
         {
             if (chkOn.Checked)
-            {        
-                _keyHook.Enabled = true;
+            {
+                // _keyHook.Enabled = true;
+                //_keyHook.Start();
+                // _keyboardListener.Enable();
+                _keyboardListener.Start();
             }
             else
             {
-                _keyHook.Enabled = false;               
+                //_keyboardListener.Disable();
+                // _keyHook.Stop();
+                //_keyHook.Enabled = false;
+                //
+                _keyboardListener.Stop();
             }
         }
 
@@ -387,13 +480,13 @@ namespace VNKeys.ui
             var kieuGo = ddlTypingMode.SelectedItem as KieuGo;
             if (kieuGo != null)
             {
-                _mapString = kieuGo.mapString;               
+                _mapString = kieuGo.mapString;
             }
         }
 
         private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-           
+
         }
 
         private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -405,11 +498,18 @@ namespace VNKeys.ui
                     e.Cancel = true;
                 }
             }
+
+            try
+            {
+                // clear up and free memory 
+                _keyboardListener.Stop();
+            }
+            catch { }
         }
 
         private void menuReportBug_Click(object sender, EventArgs e)
         {
-            MyGlobal.gotoUrl("https://vnfox.com/about-contact.htm?t=bug&n=" + MyGlobal.getAppName());            
+            MyGlobal.gotoUrl("https://vnfox.com/about-contact.htm?t=bug&n=" + MyGlobal.getAppName());
         }
 
         private void menuReqFeature_Click(object sender, EventArgs e)
@@ -441,13 +541,13 @@ namespace VNKeys.ui
         }
 
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
-        {            
-            
+        {
+
         }
 
         private void supportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-          
+
         }
 
         private void questionsAnswersToolStripMenuItem_Click(object sender, EventArgs e)
