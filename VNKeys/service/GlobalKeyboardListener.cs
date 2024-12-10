@@ -17,7 +17,7 @@ public class GlobalKeyboardListener
     public GlobalKeyboardListener(IEnumerable<Keys> keysToCapture = null)
     {
         _keysToCapture = keysToCapture != null ? new HashSet<Keys>(keysToCapture) : null;
-        _proc = HookCallback;
+        _proc = ProcessKeyboardInput;
     }
 
     public void Start()
@@ -46,7 +46,7 @@ public class GlobalKeyboardListener
         }
     }
 
-    private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    private IntPtr ProcessKeyboardInput(int nCode, IntPtr wParam, IntPtr lParam)
     {
         if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN))
         {
