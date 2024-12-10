@@ -54,9 +54,6 @@
     <ApplicationIcon>vnkeys-48.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MouseKeyboardActivityMonitor">
-      <HintPath>..\include\MouseKeyboardActivityMonitor.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -75,6 +72,7 @@
     <Compile Include="model\KieuGo.cs" />
     <Compile Include="MyGlobal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="service\GlobalKeyboardListener.cs" />
     <Compile Include="service\IniFileService.cs" />
     <Compile Include="service\KeyboardService.cs" />
     <Compile Include="service\WinService.cs" />
