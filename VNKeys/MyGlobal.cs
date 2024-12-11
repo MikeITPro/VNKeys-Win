@@ -17,8 +17,8 @@ namespace VNKeys
     internal static class MyGlobal
     {
         private static KeyboardService _keyboardService;
-        private static FormMain _formMain;        
-
+        private static FormMain _formMain;
+        private const string WEBSITE_URL = "https://vnkeys.net";
         private static Mutex mutex;
 
 
@@ -140,6 +140,11 @@ namespace VNKeys
         public static string getAppSettingFilePath()
         {
             return getAppDataPath() + "\\setting.xml";
+        }
+        
+        public static void gotoMyWebsite()
+        {
+            gotoUrl(WEBSITE_URL);
         }
        
     }

@@ -74,34 +74,12 @@ namespace VNKeys.ui
             }
         }
 
-        //private void OnKeyPressed(object sender, GlobalKeyboardHookEventArgs e)
-        //{
-        //    // EDT: No need to filter for VkSnapshot anymore. This now gets handled
-        //    // through the constructor of GlobalKeyboardHook(...).
-        //    if (e.KeyboardState == GlobalKeyboardHook.KeyboardState.KeyDown)
-        //    {
-        //        // Now you can access both, the key and virtual code
-        //        Keys loggedKey = e.KeyboardData.Key;
-        //        int loggedVkCode = e.KeyboardData.VirtualCode;
-
-        //        textBox1.Text += "k:" + loggedKey + " c: " + loggedVkCode;
-        //    }
-        //}
-
         private void onKeyPressed(object sender, KeyPressedEventArgs e)
-        {
-            // Example: Block the "a" key (lowercase) and show a message
-            //if (character == "a")
-            //{
-            //    //MessageBox.Show($"Blocked Key: {character}, Virtual Key Code: {virtualKeyCode}");
-            //    return true; // Cancel the event
-            //}
-
+        {         
             // Allow all other keys
-            //MessageBox.Show($"Key Pressed: {character}, Virtual Key Code: {virtualKeyCode}");
-            //textBox1.Text = $"Key Pressed: {character}, Virtual Key Code: {virtualKeyCode}";
-
+            // MessageBox.Show($"Key Pressed: {character}, Virtual Key Code: {virtualKeyCode}");            
             // MessageBox.Show($"Key pressed: {e.KeyCode}");
+
             if (_isReplacing) { return; }
             try
             {
@@ -242,14 +220,11 @@ namespace VNKeys.ui
         {
             if (string.IsNullOrEmpty(propertyName))
             {
-                return;
-                // throw new ArgumentNullException(nameof(propertyName), "Property name cannot be null or empty.");
+                return;             
             }
-
             for (int i = 0; i < comboBox.Items.Count; i++)
             {
                 var item = comboBox.Items[i];
-
                 // Use reflection to get the value of the specified property
                 var property = item.GetType().GetProperty(propertyName);
                 if (property != null)
@@ -262,60 +237,44 @@ namespace VNKeys.ui
                     }
                 }
             }
-
-            // Handle no match found (optional)
-            // MessageBox.Show($"Item with {propertyName} = \"{searchValue}\" not found.");
         }
 
         private void lblLink_Click(object sender, EventArgs e)
         {
-            MyGlobal.gotoUrl("https://vnkeys.net");
+            MyGlobal.gotoMyWebsite();
         }
 
         private AccentType getAccentType(string typedChar)
         {
             string[] accents = _mapString.Trim().Split(' ');
-            string rKey = "", uKey = "";            
+            string actualKey = "", preKey = "";            
             foreach (var item in accents)
             {
                 if (item.StartsWith(typedChar))
                 {
                     string[] info = item.Split('=');
-                    uKey = info[0].Trim();
-                    rKey = info[1].Trim();
+                    preKey = info[0].Trim();
+                    actualKey = info[1].Trim();
                     break;
                 }
             }
             
-            if (uKey.Length == 2) // check for aa and oo
+            if (preKey.Length > 1) // check for aa and oo
             {
-                if (!uKey.First().ToString().Equals(_lastCharString, StringComparison.OrdinalIgnoreCase))
+                if (!preKey.First().ToString().Equals(_lastCharString, StringComparison.OrdinalIgnoreCase))
                 {
                     return AccentType.NONE;
                 }                
             }
 
-            // If dau * but previous letter was a then replace with (
-            if ((rKey == "*") && (this._lastCharString.Equals("a", StringComparison.OrdinalIgnoreCase)))
+            // If dau * nhung voi chu a thay the bang dau (
+            if ((actualKey == "*") && (this._lastCharString.Equals("a", StringComparison.OrdinalIgnoreCase)))
             {
-                rKey = "(";
-            }
-
-            //if (string.IsNullOrEmpty(strKey))  // Check for or double aa or oo
-            //{                
-            //    if (typedChar.Equals("a", StringComparison.OrdinalIgnoreCase) || typedChar.Equals("o", StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        strKey = "^";
-            //    }
-            //}
-
-            //if ((strKey == "*") && (this._lastCharString.Equals("a", StringComparison.OrdinalIgnoreCase)))
-            //{
-            //    strKey = "(";
-            //}
+                actualKey = "(";
+            }    
 
             var result = AccentType.NONE;
-            switch (rKey)
+            switch (actualKey)
             {
                 case "'":
                     result = AccentType.SAC;
