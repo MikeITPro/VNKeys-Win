@@ -162,6 +162,8 @@ namespace VNKeys.ui
             chkOn.Checked = true;
 
             this.Text = MyGlobal.getAppName() + " " + MyGlobal.getAppVersion();
+            this.notifyIcon.Text = MyGlobal.getAppName();
+
             var list = new List<KieuGo>();
             var kieuGo = new KieuGo();
             kieuGo.name = "AUTO";            
