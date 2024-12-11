@@ -35,6 +35,7 @@ namespace VNKeys.model
         {
             this._mapString = mapString;
         }
-
     }
+
+
 }

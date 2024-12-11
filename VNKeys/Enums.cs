@@ -19,4 +19,13 @@ namespace VNKeys
         NGANG,  // - đ
         NONE,
     }    
+
+    internal enum KieuGoType
+    {
+        AUTO,
+        TELEX,
+        VIQR,
+        VNI,
+        USER,        
+    }
 }

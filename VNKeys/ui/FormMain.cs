@@ -20,7 +20,7 @@ namespace VNKeys.ui
     {
         private GlobalKeyboardListener _keyboardListener;
         private string _lastCharString = string.Empty;
-        private string _mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=- 1=' 2=` 5=. 3=? 4=~ 7=* 8=( 6=^ s=' f=` j=. r=? x=~ w=* w=(";
+        private string _mapString = null;
         private bool _isReplacing = false;
 
         public FormMain()
@@ -39,75 +39,7 @@ namespace VNKeys.ui
             _lastCharString = "";
         }
 
-
-        private void keyboardKeyDown(object sender, KeyEventArgs e)
-        {
-            // MessageBox.Show($"Key pressed: {e.KeyCode}");
-            if (_isReplacing) { return; }
-            try
-            {
-                Keys key = e.KeyData;
-                if (chkOn.Checked)
-                {
-                    if ((key == Keys.Space) || key == Keys.Enter) // new word
-                    {
-                        this.resetLastWord();
-                    }
-                    else if ((key != Keys.LShiftKey) && (key != Keys.RShiftKey))
-                    {
-                        string charString = MyGlobal.getKeyboardService().getCharFromKeyValue(e.KeyValue).ToString();
-
-                        //if (chkDauDoi.Checked)
-                        //{
-                        //    string ch = _lastWord.ToString().ToLower();
-                        //    if (this.getIsVietKeyWithAccent(strKey))
-                        //    {
-                        //        if (strKey.ToLower() != "d")
-                        //        {
-                        //            if (strKey.ToLower() == ch)
-                        //            {
-                        //                isAccentMark = true;
-                        //                strKey = "^";
-                        //            }
-                        //        }
-                        //    }
-                        //}
-
-                        var accentType = getAccentType(charString);
-
-                        if ((accentType != AccentType.NONE) && !string.IsNullOrEmpty(_lastCharString))
-                        {
-                            string data = this.getVietCharacterByDau(accentType);
-                            if (!string.IsNullOrEmpty(data))
-                            {
-                                _isReplacing = true;
-                                MyGlobal.getKeyboardService().sendKey(Keys.Back);
-                                MyGlobal.getKeyboardService().sendStringToCurrentCursor(data);
-                                saveLastWord(data);
-                                e.Handled = true;
-                                _isReplacing = false;
-                                return;
-                            }
-                        }
-                        else if (this.isVietCharacter(charString))
-                        {
-                            saveLastWord(charString);
-                        }
-                        else
-                        {
-                            resetLastWord();
-                            // MessageBox.Show(_lastCharString + " " + charString);
-                        }
-                    }
-                }
-            }
-            catch (Exception ignored)
-            {
-                // You can log for debug
-                // MessageBox.Show(ignored.ToString());
-            }
-        }
-
+                
         private bool isVietCharacter(string key)
         {
             key = key.ToLower();
@@ -199,16 +131,18 @@ namespace VNKeys.ui
                                 saveLastWord(data);                                
                                 _isReplacing = false;
                                 e.Handled = true;
+                                return;
                             }
                         }
-                        else if (this.isVietCharacter(charString))
+                        
+                        if (this.isVietCharacter(charString))
                         {
                             saveLastWord(charString);
                         }
                         else
                         {
                             resetLastWord();
-                            // MessageBox.Show(_lastCharString + " " + charString);
+
                         }
                     }
                 }
@@ -230,14 +164,13 @@ namespace VNKeys.ui
             this.Text = MyGlobal.getAppName() + " " + MyGlobal.getAppVersion();
             var list = new List<KieuGo>();
             var kieuGo = new KieuGo();
-            kieuGo.name = "AUTO";
-            kieuGo.mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=- 1=' 2=` 5=. 3=? 4=~ 7=* 8=( 6=^ s=' f=` j=. r=? x=~ w=* w=(";
+            kieuGo.name = "AUTO";            
             list.Add(kieuGo);
 
 
             kieuGo = new KieuGo();
             kieuGo.name = "TELEX";
-            kieuGo.mapString = "s=' f=` j=. r=? x=~ w=* 9=( 6=^ d=-";
+            kieuGo.mapString = "s=' f=` j=. r=? x=~ w=* w=( aa=^ oo=^ ee=^ d=- D=-";
             list.Add(kieuGo);
             
             kieuGo = new KieuGo();
@@ -247,8 +180,10 @@ namespace VNKeys.ui
 
             kieuGo = new KieuGo();
             kieuGo.name = "VIQR";
-            kieuGo.mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=-";
+            kieuGo.mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=- D=-";
             list.Add(kieuGo);
+
+            list[0].mapString = list[1].mapString + " " + list[2].mapString + " " + list[3].mapString;
 
             ddlTypingMode.DataSource = list;
             ddlTypingMode.DisplayMember = "name";
@@ -338,18 +273,47 @@ namespace VNKeys.ui
         private AccentType getAccentType(string typedChar)
         {
             string[] accents = _mapString.Trim().Split(' ');
-            string strKey = "";
+            string rKey = "", uKey = "";            
             foreach (var item in accents)
             {
                 if (item.StartsWith(typedChar))
                 {
                     string[] info = item.Split('=');
-                    strKey = info[1];
+                    uKey = info[0].Trim();
+                    rKey = info[1].Trim();
                     break;
                 }
             }
+            
+            if (uKey.Length == 2) // check for aa and oo
+            {
+                if (!uKey.First().ToString().Equals(_lastCharString, StringComparison.OrdinalIgnoreCase))
+                {
+                    return AccentType.NONE;
+                }                
+            }
+
+            // If dau * but previous letter was a then replace with (
+            if ((rKey == "*") && (this._lastCharString.Equals("a", StringComparison.OrdinalIgnoreCase)))
+            {
+                rKey = "(";
+            }
+
+            //if (string.IsNullOrEmpty(strKey))  // Check for or double aa or oo
+            //{                
+            //    if (typedChar.Equals("a", StringComparison.OrdinalIgnoreCase) || typedChar.Equals("o", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        strKey = "^";
+            //    }
+            //}
+
+            //if ((strKey == "*") && (this._lastCharString.Equals("a", StringComparison.OrdinalIgnoreCase)))
+            //{
+            //    strKey = "(";
+            //}
+
             var result = AccentType.NONE;
-            switch (strKey)
+            switch (rKey)
             {
                 case "'":
                     result = AccentType.SAC;
@@ -451,18 +415,11 @@ namespace VNKeys.ui
         private void updateVNKeysOnOff()
         {
             if (chkOn.Checked)
-            {
-                // _keyHook.Enabled = true;
-                //_keyHook.Start();
-                // _keyboardListener.Enable();
+            {                
                 _keyboardListener.Start();
             }
             else
             {
-                //_keyboardListener.Disable();
-                // _keyHook.Stop();
-                //_keyHook.Enabled = false;
-                //
                 _keyboardListener.Stop();
             }
         }
