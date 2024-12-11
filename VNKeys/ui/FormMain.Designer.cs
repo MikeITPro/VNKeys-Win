@@ -137,22 +137,22 @@
             // menuReportBug
             // 
             this.menuReportBug.Name = "menuReportBug";
-            this.menuReportBug.Size = new System.Drawing.Size(224, 22);
-            this.menuReportBug.Text = "Report a bug";
+            this.menuReportBug.Size = new System.Drawing.Size(208, 22);
+            this.menuReportBug.Text = "Báo lỗi";
             this.menuReportBug.Click += new System.EventHandler(this.menuReportBug_Click);
             // 
             // menuReqFeature
             // 
             this.menuReqFeature.Name = "menuReqFeature";
-            this.menuReqFeature.Size = new System.Drawing.Size(224, 22);
-            this.menuReqFeature.Text = "Request a feature";
+            this.menuReqFeature.Size = new System.Drawing.Size(208, 22);
+            this.menuReqFeature.Text = "Yêu cầu chức năng";
             this.menuReqFeature.Click += new System.EventHandler(this.menuReqFeature_Click);
             // 
             // questionsAnswersToolStripMenuItem
             // 
             this.questionsAnswersToolStripMenuItem.Name = "questionsAnswersToolStripMenuItem";
-            this.questionsAnswersToolStripMenuItem.Size = new System.Drawing.Size(224, 22);
-            this.questionsAnswersToolStripMenuItem.Text = "Questions && Answers";
+            this.questionsAnswersToolStripMenuItem.Size = new System.Drawing.Size(208, 22);
+            this.questionsAnswersToolStripMenuItem.Text = "Hỏi && Đáp";
             this.questionsAnswersToolStripMenuItem.Click += new System.EventHandler(this.questionsAnswersToolStripMenuItem_Click);
             // 
             // supportToolStripMenuItem
