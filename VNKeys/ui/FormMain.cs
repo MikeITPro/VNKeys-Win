@@ -222,18 +222,9 @@ namespace VNKeys.ui
 
         private void FormMain_Load(object sender, EventArgs e)
         {
-
-            //_keyHook = new KeyboardHookListener();
-            //_keyHook.KeyDown += keyboardKeyDown;
-
-            // Hooks into all keys.
-            //_globalKeyboardHook = new GlobalKeyboardHook();
-            // _globalKeyboardHook.KeyboardPressed += OnKeyPressed;
-
             _keyboardListener = new GlobalKeyboardListener();
             _keyboardListener.KeyPressed += onKeyPressed;
-            //_keyboardListener.Start();
-
+         
             chkOn.Checked = true;
 
             this.Text = MyGlobal.getAppName() + " " + MyGlobal.getAppVersion();
@@ -243,19 +234,20 @@ namespace VNKeys.ui
             kieuGo.mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=- 1=' 2=` 5=. 3=? 4=~ 7=* 8=( 6=^ s=' f=` j=. r=? x=~ w=* w=(";
             list.Add(kieuGo);
 
-            kieuGo = new KieuGo();
-            kieuGo.name = "VIQR";
-            kieuGo.mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=-";
-            list.Add(kieuGo);
 
+            kieuGo = new KieuGo();
+            kieuGo.name = "TELEX";
+            kieuGo.mapString = "s=' f=` j=. r=? x=~ w=* 9=( 6=^ d=-";
+            list.Add(kieuGo);
+            
             kieuGo = new KieuGo();
             kieuGo.name = "VNI";
             kieuGo.mapString = "1=' 2=` 5=. 3=? 4=~ 7=* 8=( 6=^ d=-";
             list.Add(kieuGo);
 
             kieuGo = new KieuGo();
-            kieuGo.name = "TELEX";
-            kieuGo.mapString = "s=' f=` j=. r=? x=~ w=* 9=( 6=^ d=-";
+            kieuGo.name = "VIQR";
+            kieuGo.mapString = "'=' `=` ?=? ~=~ .=. ^=^ *=* +=* (=( -=- d=-";
             list.Add(kieuGo);
 
             ddlTypingMode.DataSource = list;
