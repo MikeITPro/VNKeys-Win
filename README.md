@@ -4,6 +4,6 @@ VNKeys is a powerful, user-friendly keyboard input application designed specific
 [Details in Vietnamese - https://vnkeys.net/vnkeys-win.htm](https://vnkeys.net/vnkeys-win.htm)
 
 ## Screenshots
-![Main Screen](https://vnkeys.net/include/soft/vnkeys-win/1.png)
-![Setting Screen](https://vnkeys.net/include/soft/vnkeys-win/2.png)
+![Main Screen](https://vnkeys.net/soft/vnkeys/images/1.png)
+![Setting Screen](https://vnkeys.net/soft/vnkeys/images/2.png)
 
