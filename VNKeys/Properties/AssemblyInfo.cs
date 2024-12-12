@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VNKeys;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
@@ -32,5 +33,9 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.12.07.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+//[assembly: AssemblyVersion("0.12.11.0")]
+//[assembly: AssemblyFileVersion("0.12.11.0")]
+
+// Define the version constant
+[assembly: AssemblyVersion(MyGlobal.APP_VERSION)]
+[assembly: AssemblyFileVersion(MyGlobal.APP_VERSION)]

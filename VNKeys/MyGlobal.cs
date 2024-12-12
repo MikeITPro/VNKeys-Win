@@ -14,14 +14,14 @@ using VNKeys.ui;
 
 namespace VNKeys
 {
-    internal static class MyGlobal
+    internal static partial class MyGlobal
     {
-        private static KeyboardService _keyboardService;
-        private static FormMain _formMain;
+        public const string APP_VERSION = "0.12.11";
         private const string WEBSITE_URL = "https://vnkeys.net";
+        private static KeyboardService _keyboardService;
+        private static FormMain _formMain;       
         private static Mutex mutex;
-
-
+        
         [STAThread]
         static void Main()
         {          
@@ -122,11 +122,9 @@ namespace VNKeys
 
         public static string getAppVersion()
         {
-
-            return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+            return APP_VERSION;
         }        
         
-
         public static string getAppDataPath()
         {
             var dPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), getAppName());
